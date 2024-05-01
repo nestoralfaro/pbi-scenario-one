@@ -127,7 +127,7 @@ function App() {
           closing: closingPrices[i],
           diff: change,
           stat: percentage.toFixed(2),
-          arrow: percentage[i] > percentage[i - 1] ? 'increase' : 'decrease'
+          arrow: percentage > priceChanges[i - 1].stat ? 'increase' : 'decrease'
         });
       }
       setPlottedData(priceChanges);
