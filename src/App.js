@@ -14,6 +14,16 @@ import {
   StatHelpText,
   StatArrow,
   StatGroup,
+  Center,
+  Divider,
+  Card,
+  CardBody,
+  Skeleton,
+  Flex,
+  Avatar,
+  Heading,
+  AvatarBadge,
+  useToast,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea, ReferenceLine } from 'recharts';
@@ -60,7 +70,10 @@ const CustomTooltip = ({active, payload, label}) => {
   }
 };
 
+const propExists = (obj, prop) => obj.hasOwnProperty(prop) && obj[prop] !== null && obj[prop] !== '';
+
 function App() {
+  const toast = useToast();
   const [symbol1, setSymbol1] = useState('GLW');
   const [fromDate1, setFromDate1] = useState('2015-01-01');
   const [toDate1, setToDate1] = useState('2015-06-30');
@@ -118,8 +131,8 @@ function App() {
       //   );
       // }
 
-      let calcMostSigSpike = {date: dates[0], closing: closingPrices[0], diff: 0, stat: 0, arrow: 'none'};
-      const priceChanges = [{date: dates[0], closing: closingPrices[0], diff: 0, stat: 0, arrow: 'none'}];
+      let calcMostSigSpike = { date: dates[0], closing: closingPrices[0], diff: 0, stat: 0, arrow: 'none' };
+      const priceChanges = [ { date: dates[0], closing: closingPrices[0], diff: 0, stat: 0, arrow: 'none' } ];
       for (let i = 1; i < count; ++i) {
         const change = closingPrices[i] - closingPrices[i - 1];
         const percentage = (change/closingPrices[i - 1]) * 100;
@@ -140,10 +153,14 @@ function App() {
           };
         }
       }
-      console.log();
       setPlottedData(priceChanges);
-      setMostSigSpike(calcMostSigSpike);
-
+      toast({
+        title: `Analyzing ${symbol}...`,
+        description: "Please wait for spike summary.",
+        status: "loading",
+        duration: 5000,
+        isClosable: true,
+      });
       const key = 'pk-mhaKqaHjvYAWeRCTppFSSZwFetrQhEEEsgXFdQGqnuTGmPsO';
       const res = await fetch('https://api.pawan.krd/v1/chat/completions',
         {
@@ -157,13 +174,14 @@ function App() {
             temperature: 0.7,
             max_tokens: 256,
             messages: [
-              { role: "user", content: `Provide with confidence, and in a couple of sentences an explanation for the significant price spike from the following closing prices for the company with stock symbol ${symbol}, and the most significant positive price spike of ${calcMostSigSpike.stat}% from the following closing price history: ${JSON.stringify(priceChanges.map(e => ({ date: e.date, price: e.closing })))}` },
+              { role: "user", content: `Provide with confidence, and in a couple of sentences (no more than 50 words) an explanation for the significant price spike from the following closing prices for the company with stock symbol ${symbol}, and the most significant positive price spike of ${calcMostSigSpike.stat}% on ${calcMostSigSpike.date} from the following closing price history: ${JSON.stringify(priceChanges.map(e => ({ date: e.date, price: e.closing })))}` },
             ]
           })
         }
       );
       const j = await res.json();
-      console.log(j.choices[0].message);
+      calcMostSigSpike.analysis = j.choices[0].message.content;
+      setMostSigSpike(calcMostSigSpike);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -186,35 +204,71 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
-        <SimpleGrid minH="100%" columns={2} spacing={10}>
+        <ColorModeSwitcher justifySelf="flex-end"/>
+        { /* data entry */ }
+        <SimpleGrid columns={2} spacing={10}>
           <Box>
-            <Input placeholder="Symbol. Example: GLW" value={symbol1} onChange={(e) => setSymbol1(e.target.value.toUpperCase())} mb={3} />
-            <Input type="date" placeholder="From" value={fromDate1} onChange={(e) => setFromDate1(e.target.value)} mb={3} />
-            <Input type="date" placeholder="To" value={toDate1} onChange={(e) => setToDate1(e.target.value)} mb={3} />
-            <Button colorScheme="teal" onClick={handleQuery1}>Query</Button>
-            <Text mt={5} fontWeight="bold">Symbol: {symbol1}</Text>
-            <Text>Min Price: {data1.length > 0 ? Math.min(...data1).toFixed(2) : 'N/A'}</Text>
-            <Text>Max Price: {data1.length > 0 ? Math.max(...data1).toFixed(2) : 'N/A'}</Text>
-            <Text>Average Price: {data1.length > 0 ? (data1.reduce((acc, curr) => acc + curr, 0) / data1.length).toFixed(2) : 'N/A'}</Text>
+            <SimpleGrid columns={3} spacing={2}>
+              <Input placeholder="Symbol. Example: GLW" value={symbol1} onChange={(e) => setSymbol1(e.target.value.toUpperCase())} mb={3} />
+              <Input type="date" placeholder="From" value={fromDate1} onChange={(e) => setFromDate1(e.target.value)} mb={3} />
+              <Input type="date" placeholder="To" value={toDate1} onChange={(e) => setToDate1(e.target.value)} mb={3} />
+            </SimpleGrid>
+            <Center>
+              <Button colorScheme="teal" onClick={handleQuery1}>Fetch</Button>
+            </Center>
+            <Divider m={3}/>
+            <StatGroup>
+              <Stat>
+                <StatLabel>Min Price</StatLabel>
+                <StatNumber>{data1.length > 0 ? "$" + Math.min(...data1).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol1}</StatHelpText>
+              </Stat>
+              <Stat>
+                <StatLabel>Max Price</StatLabel>
+                <StatNumber>{data1.length > 0 ? "$" + Math.max(...data1).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol1}</StatHelpText>
+              </Stat><Stat>
+                <StatLabel>Average Price</StatLabel>
+                <StatNumber>{data1.length > 0 ? "$" + (data1.reduce((acc, curr) => acc + curr, 0) / data1.length).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol1}</StatHelpText>
+              </Stat>
+            </StatGroup>
           </Box>
           <Box>
-            <Input placeholder="Symbol. Example: NVDA)" value={symbol2} onChange={(e) => setSymbol2(e.target.value.toUpperCase())} mb={3} />
-            <Input type="date" placeholder="From" value={fromDate2} onChange={(e) => setFromDate2(e.target.value)} mb={3} />
-            <Input type="date" placeholder="To" value={toDate2} onChange={(e) => setToDate2(e.target.value)} mb={3} />
-            <Button colorScheme="teal" onClick={handleQuery2}>Query</Button>
-            <Text mt={5} fontWeight="bold">Symbol: {symbol2}</Text>
-            <Text>Min Price: {data2.length > 0 ? Math.min(...data2).toFixed(2) : 'N/A'}</Text>
-            <Text>Max Price: {data2.length > 0 ? Math.max(...data2).toFixed(2) : 'N/A'}</Text>
-            <Text>Average Price: {data2.length > 0 ? (data2.reduce((acc, curr) => acc + curr, 0) / data2.length).toFixed(2) : 'N/A'}</Text>
+            <SimpleGrid columns={3} spacing={2}>
+              <Input placeholder="Symbol. Example: NVDA" value={symbol2} onChange={(e) => setSymbol2(e.target.value.toUpperCase())} mb={3} />
+              <Input type="date" placeholder="From" value={fromDate2} onChange={(e) => setFromDate2(e.target.value)} mb={3} />
+              <Input type="date" placeholder="To" value={toDate2} onChange={(e) => setToDate2(e.target.value)} mb={3} />
+            </SimpleGrid>
+            <Center>
+              <Button colorScheme="teal" onClick={handleQuery2}>Fetch</Button>
+            </Center>
+            <Divider m={3}/>
+            <StatGroup>
+              <Stat>
+                <StatLabel>Min Price</StatLabel>
+                <StatNumber>{data2.length > 0 ? "$" + Math.min(...data2).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol2}</StatHelpText>
+              </Stat>
+              <Stat>
+                <StatLabel>Max Price</StatLabel>
+                <StatNumber>{data2.length > 0 ? "$" + Math.max(...data2).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol2}</StatHelpText>
+              </Stat><Stat>
+                <StatLabel>Average Price</StatLabel>
+                <StatNumber>{data2.length > 0 ? "$" + (data2.reduce((acc, curr) => acc + curr, 0) / data2.length).toFixed(2) : 'N/A'}</StatNumber>
+                <StatHelpText>{symbol2}</StatHelpText>
+              </Stat>
+            </StatGroup>
           </Box>
         </SimpleGrid>
-        <SimpleGrid minH="100%" columns={2} spacing={10}>
+        { /* charts */ }
+        <SimpleGrid columns={2} spacing={5}>
           <Box>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={plottedData1}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis tick={<CustomizedAxisTick />} height={50} dataKey="date" label={{ value: 'Days', position: 'insideBottom', offset: -2 }} />
+                <XAxis tick={<CustomizedAxisTick/>} height={50} dataKey="date" label={{ value: 'Days', position: 'insideBottom', offset: -2 }} />
                 <YAxis label={{ value: 'Closing Price', angle: -90, position: 'insideLeft' }}/>
                 <Tooltip content={<CustomTooltip/>} />
                 <Legend verticalAlign='top' height={36} iconType='plainline'/>
@@ -227,7 +281,7 @@ function App() {
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={plottedData2}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis tick={<CustomizedAxisTick />} height={50} dataKey="date" label={{ value: 'Days', position: 'insideBottom', offset: -2 }} />
+                <XAxis tick={<CustomizedAxisTick/>} height={50} dataKey="date" label={{ value: 'Days', position: 'insideBottom', offset: -2 }} />
                 <YAxis label={{ value: 'Closing Price', angle: -90, position: 'insideLeft' }}/>
                 <Tooltip content={<CustomTooltip/>} />
                 <Legend verticalAlign='top' height={36} iconType='plainline'/>
@@ -236,6 +290,49 @@ function App() {
               </LineChart>
             </ResponsiveContainer>
           </Box>
+        </SimpleGrid>
+        { /* llm analysis */ }
+        <SimpleGrid columns={2} spacing={5}>
+          <Card variant={'filled'}>
+            <CardBody>
+              <Text>
+                {
+                  propExists(mostSigSpike1, 'analysis')
+                  ? mostSigSpike1.analysis
+                  : 
+                    <Flex flex='1' gap='3' alignItems={'center'} flexWrap='wrap'>
+                      <Avatar name='p'>
+                        <AvatarBadge boxSize={'1em'} bg='green.500'/>
+                      </Avatar>
+                      <Box>
+                        <Heading>pai-001-light</Heading>
+                        <Text>LLM</Text>
+                      </Box>
+                    </Flex>
+                }
+              </Text>
+            </CardBody>
+          </Card>
+          <Card variant={'filled'}>
+            <CardBody>
+              <Text>
+                {
+                  propExists(mostSigSpike2, 'analysis')
+                  ? mostSigSpike2.analysis
+                  :
+                    <Flex flex='1' gap='3' alignItems={'center'} flexWrap='wrap'>
+                      <Avatar name='p'>
+                        <AvatarBadge boxSize={'1em'} bg='green.500'/>
+                      </Avatar>
+                      <Box>
+                        <Heading>pai-001-light</Heading>
+                        <Text>LLM</Text>
+                      </Box>
+                    </Flex>
+                }
+              </Text>
+            </CardBody>
+          </Card>
         </SimpleGrid>
       </Grid>
     </ChakraProvider>
