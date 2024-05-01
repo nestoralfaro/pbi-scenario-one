@@ -10,7 +10,7 @@ Using a programming language/framework/stack of your choice, achieve the followi
 - Please create a data visualization using a medium of your choice to show the price moves and highlight any abnormal price moves.
 
 ## Available Scripts
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), [Chakra UI](https://v2.chakra-ui.com/docs/components), and [Recharts](https://recharts.org/en-US/api). In the project directory, you can run:
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), [Chakra UI](https://v2.chakra-ui.com/docs/components), [Recharts](https://recharts.org/en-US/api), and an [Open Source ChatGPT-like LLM](https://github.com/PawanOsman/ChatGPT). In the project directory, you can run:
 
 ### `npm start`
 Runs the app in the development mode.<br />
