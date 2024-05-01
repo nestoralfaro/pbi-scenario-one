@@ -8,6 +8,12 @@ import {
   Input,
   Button,
   Text,
+  Stat,
+  StatLabel,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  StatGroup,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -26,7 +32,32 @@ class CustomizedAxisTick extends PureComponent {
   }
 }
 
-const CustomTooltip = () => {
+const CustomTooltip = ({active, payload, label}) => {
+  if (active && payload && payload.length) {
+    const { arrow, closing, date, diff, stat } = payload[0].payload;
+    return (
+      <>
+        {
+          arrow === 'none'
+          ?
+            <Stat>
+              <StatLabel>{label}</StatLabel>
+              <StatNumber>${payload[0].value.toFixed(2)}</StatNumber>
+              <StatHelpText>{stat}%</StatHelpText>
+            </Stat>
+          :
+            <Stat>
+              <StatLabel>{label}</StatLabel>
+              <StatNumber>${payload[0].value.toFixed(2)}</StatNumber>
+              <StatHelpText>
+                <StatArrow type={arrow}/>
+                {stat}%
+              </StatHelpText>
+            </Stat>
+        }
+      </>
+    );
+  }
 };
 
 function App() {
@@ -58,18 +89,48 @@ function App() {
       }
       const jsonData = await response.json();
       const data = JSON.parse(jsonData.contents);
-      const count = data.chart.result[0].indicators.quote[0].close.length;
-      const dataArray = [];
-      for(let i = 0; i < count; ++i) {
-        dataArray.push({
-          date: timeStampSecToDate(data.chart.result[0].timestamp[i]),
-          closing: data.chart.result[0].indicators.quote[0].close[i].toFixed(2)
+      const closingPrices = data.chart.result[0].indicators.quote[0].close;
+      const dates = data.chart.result[0].timestamp.map(d => timeStampSecToDate(d));
+      const count = closingPrices.length;
+      // const dataArray = [];
+      // for(let i = 0; i < count; ++i) {
+      //   dataArray.push({
+      //     date: timeStampSecToDate(data.chart.result[0].timestamp[i]),
+      //     closing: closingPrices[i].toFixed(2)
+      //   });
+      // }
+      // setPlottedData(dataArray);
+      setData(closingPrices);
+
+      // const dataMap = new Map();
+      // dataMap.set(dates[0], {amount: closingPrices[0], diff: 0, stat: 0, arrow: 'none'});
+      // for (let i = 1; i < count; ++i) {
+      //   const change = closingPrices[i] - closingPrices[i - 1];
+      //   const percentage = (change/closingPrices[i - 1]) * 100;
+      //   dataMap.set(
+      //     dates[i],
+      //     {
+      //       amount: closingPrices[i],
+      //       diff: change,
+      //       stat: percentage.toFixed(2),
+      //       arrow: percentage[i] > percentage[i - 1] ? 'increase' : 'decrease'
+      //     }
+      //   );
+      // }
+
+      const priceChanges = [{date: dates[0], closing: closingPrices[0], diff: 0, stat: 0, arrow: 'none'}];
+      for (let i = 1; i < count; ++i) {
+        const change = closingPrices[i] - closingPrices[i - 1];
+        const percentage = (change/closingPrices[i - 1]) * 100;
+        priceChanges.push({
+          date: dates[i],
+          closing: closingPrices[i],
+          diff: change,
+          stat: percentage.toFixed(2),
+          arrow: percentage[i] > percentage[i - 1] ? 'increase' : 'decrease'
         });
       }
-      setPlottedData(dataArray);
-      setData(data.chart.result[0].indicators.quote[0].close);
-      const priceChanges = [];
-      setPriceChange(priceChanges);
+      setPlottedData(priceChanges);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
