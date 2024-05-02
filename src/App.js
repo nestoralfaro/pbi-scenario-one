@@ -24,9 +24,12 @@ import {
   Heading,
   AvatarBadge,
   useToast,
+  HStack,
+  Link,
 } from '@chakra-ui/react';
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea, ReferenceLine } from 'recharts';
+import { FaExternalLinkAlt, FaGithub, FaLinkedin } from 'react-icons/fa';
 
 class CustomizedAxisTick extends PureComponent {
   render() {
@@ -204,7 +207,19 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end"/>
+        <HStack alignItems={'flex-start'} justifySelf='flex-end'>
+          <Link href='https://github.com/nestoralfaro/pbi-scenario-one' isExternal>
+            <Button colorScheme={'gray'} leftIcon={<FaGithub/>}>
+              Source
+            </Button>
+          </Link>
+          <Link href='https://www.linkedin.com/in/nestoralfaro/' isExternal>
+            <Button colorScheme={'linkedin'} leftIcon={<FaLinkedin/>}>
+                LinkedIn
+            </Button>
+          </Link>
+          <ColorModeSwitcher justifySelf="flex-end"/>
+        </HStack>
         { /* data entry */ }
         <SimpleGrid columns={2} spacing={10}>
           <Box>
@@ -214,7 +229,7 @@ function App() {
               <Input type="date" placeholder="To" value={toDate1} onChange={(e) => setToDate1(e.target.value)} mb={3} />
             </SimpleGrid>
             <Center>
-              <Button colorScheme="teal" onClick={handleQuery1}>Fetch</Button>
+              <Button colorScheme="blue" onClick={handleQuery1}>Fetch</Button>
             </Center>
             <Divider m={3}/>
             <StatGroup>
@@ -227,10 +242,19 @@ function App() {
                 <StatLabel>Max Price</StatLabel>
                 <StatNumber>{data1.length > 0 ? "$" + Math.max(...data1).toFixed(2) : 'N/A'}</StatNumber>
                 <StatHelpText>{symbol1}</StatHelpText>
-              </Stat><Stat>
+              </Stat>
+              <Stat>
                 <StatLabel>Average Price</StatLabel>
                 <StatNumber>{data1.length > 0 ? "$" + (data1.reduce((acc, curr) => acc + curr, 0) / data1.length).toFixed(2) : 'N/A'}</StatNumber>
                 <StatHelpText>{symbol1}</StatHelpText>
+              </Stat>
+              <Stat>
+                <StatLabel>ROI</StatLabel>
+                <StatNumber>
+                  <StatArrow type= {(((data1[data1.length - 1] - data1[0])/data1[0]).toFixed(2)) >= 0 ? 'increase' : 'decrease'}/>
+                  {((data1[data1.length - 1] - data1[0])/data1[0]).toFixed(2)}%
+                </StatNumber>
+                <StatHelpText>{data1.length} shares</StatHelpText>
               </Stat>
             </StatGroup>
           </Box>
@@ -241,7 +265,7 @@ function App() {
               <Input type="date" placeholder="To" value={toDate2} onChange={(e) => setToDate2(e.target.value)} mb={3} />
             </SimpleGrid>
             <Center>
-              <Button colorScheme="teal" onClick={handleQuery2}>Fetch</Button>
+              <Button colorScheme="blue" onClick={handleQuery2}>Fetch</Button>
             </Center>
             <Divider m={3}/>
             <StatGroup>
@@ -258,6 +282,14 @@ function App() {
                 <StatLabel>Average Price</StatLabel>
                 <StatNumber>{data2.length > 0 ? "$" + (data2.reduce((acc, curr) => acc + curr, 0) / data2.length).toFixed(2) : 'N/A'}</StatNumber>
                 <StatHelpText>{symbol2}</StatHelpText>
+              </Stat>
+              <Stat>
+                <StatLabel>ROI</StatLabel>
+                <StatNumber>
+                  <StatArrow type= {(((data2[data2.length - 1] - data2[0])/data2[0]).toFixed(2)) >= 0 ? 'increase' : 'decrease'}/>
+                  {((data2[data2.length - 1] - data2[0])/data2[0]).toFixed(2)}%
+                </StatNumber>
+                <StatHelpText>{data2.length} shares</StatHelpText>
               </Stat>
             </StatGroup>
           </Box>
