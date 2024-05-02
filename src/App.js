@@ -30,6 +30,7 @@ import {
 import { ColorModeSwitcher } from './ColorModeSwitcher';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea, ReferenceLine } from 'recharts';
 import { FaExternalLinkAlt, FaGithub, FaLinkedin } from 'react-icons/fa';
+import Typewriter from 'typewriter-effect';
 
 class CustomizedAxisTick extends PureComponent {
   render() {
@@ -330,7 +331,14 @@ function App() {
               <Text>
                 {
                   propExists(mostSigSpike1, 'analysis')
-                  ? mostSigSpike1.analysis
+                  ? <Typewriter
+                      onInit={(t) => {
+                        t
+                          .changeDelay(1)
+                          .typeString(mostSigSpike1.analysis)
+                          .start()
+                      }}
+                    />
                   : 
                     <Flex flex='1' gap='3' alignItems={'center'} flexWrap='wrap'>
                       <Avatar name='p'>
