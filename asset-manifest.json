@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.js": "/pbi-scenario-one/static/js/main.f6f042db.js",
+    "static/js/453.4c1e6410.chunk.js": "/pbi-scenario-one/static/js/453.4c1e6410.chunk.js",
+    "index.html": "/pbi-scenario-one/index.html",
+    "main.f6f042db.js.map": "/pbi-scenario-one/static/js/main.f6f042db.js.map",
+    "453.4c1e6410.chunk.js.map": "/pbi-scenario-one/static/js/453.4c1e6410.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.f6f042db.js"
+  ]
+}
