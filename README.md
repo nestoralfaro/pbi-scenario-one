@@ -10,7 +10,7 @@ Using a programming language/framework/stack of your choice, achieve the followi
 - Please create a data visualization using a medium of your choice to show the price moves and highlight any abnormal price moves.
 
 ## Implementation
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), [Chakra UI](https://v2.chakra-ui.com/docs/components), [Recharts](https://recharts.org/en-US/api), and an [Open Source ChatGPT-like LLM](https://github.com/PawanOsman/ChatGPT). The data is fetched from the free [Yahoo API](https://query1.finance.yahoo.com/v8/finance/chart/GLW?symbol=GLW&period1=1420070400&period2=1435622400&interval=1d) through [allOrigins](https://allorigins.win/) (for demo purposes only).
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), [Chakra UI](https://v2.chakra-ui.com/docs/components), [Recharts](https://recharts.org/en-US/api), and an [Open Source ChatGPT-like LLM](https://github.com/PawanOsman/ChatGPT). The data is fetched from the free [Yahoo API](https://query1.finance.yahoo.com/v8/finance/chart/GLW?symbol=GLW&period1=1420070400&period2=1435622400&interval=1d) through [allOrigins](https://allorigins.win/) (for demo purposes only). Check it out [here](https://nestoralfaro.github.io/pbi-scenario-one/)!
 
 ## Available Commands
 ### `npm start`
