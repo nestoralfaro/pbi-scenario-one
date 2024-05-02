@@ -11,8 +11,11 @@ Using a programming language/framework/stack of your choice, achieve the followi
 
 ## Implementation
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), [Chakra UI](https://v2.chakra-ui.com/docs/components), [Recharts](https://recharts.org/en-US/api), and an [Open Source ChatGPT-like LLM](https://github.com/PawanOsman/ChatGPT). The data is fetched from the free [Yahoo API](https://query1.finance.yahoo.com/v8/finance/chart/GLW?symbol=GLW&period1=1420070400&period2=1435622400&interval=1d) through [allOrigins](https://allorigins.win/) (for demo purposes only). Check it out [here](https://nestoralfaro.github.io/pbi-scenario-one/)!
-ROI is being calculated as follows:
-$$ \text{ROI} = \left( \frac{\text{EndPrice} - \text{StartPrice}}{\text{StartPrice}} \right) \times 100\% $$
+<br/>
+*ROI* calculation is being done following the formula:
+```math
+\text{ROI} = \left( \frac{\text{EndPrice} - \text{StartPrice}}{\text{StartPrice}} \right) \times 100\%
+```
 
 ## Available Commands
 ### `npm start`
